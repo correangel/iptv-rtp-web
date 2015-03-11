@@ -41,19 +41,32 @@ require("functions.php");
 
 $streamip = $_GET['streamip'];
 $probeid = $_GET['probeid'];
+$errors = $_GET['errors'];
 
 echo "<h2><a href=\"index.php\">IPTV RTP Monitor</a></h2>";
 echo "<p>Multicast Stream: <b><a href=\"monitorstream.php?streamip=".$streamip."\">".$streamip."</a></b> (Last 24 hours)</p>";
-
+if (!empty($probeid)){
+	 echo "<p><b><a href=\"monitorstream.php?streamip=".$streamip."&probeid=".$probeid."&errors=1\">Only show errored intervals</a></b></p>";
+} else {
+	 echo "<p><b><a href=\"monitorstream.php?streamip=".$streamip."&errors=1\">Only show errored intervals</a></b></p>";
+}
 
 // Connect to DB
 $dbc = db_connect($dbhost,$dbuser,$dbpass,$database,$dbtype);
 
 // Query the table for channels
 if (!empty($probeid)){
-	$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" AND probeid=\"".$probeid."\" ORDER BY ts DESC";
+	if (!empty($errors)){
+		$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" AND probeid=\"".$probeid."\" AND (lostpackets >= 1 OR oospackets >= 1) ORDER BY ts DESC";
+	} else {
+		$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" AND probeid=\"".$probeid."\" ORDER BY ts DESC";
+	}
 } else {
-	$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" ORDER BY ts DESC";
+	if (!empty($errors)){
+		$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" AND (lostpackets >= 1 OR oospackets >= 1) ORDER BY ts DESC";
+	} else {
+		$sql="SELECT * FROM log WHERE ts > FROM_UNIXTIME(UNIX_TIMESTAMP(NOW()) - 86400) AND streamip=\"".$streamip."\" ORDER BY ts DESC";
+	}
 }
 $query = $dbc->Execute($sql);
 if($query === false) {
@@ -67,6 +80,10 @@ $query->MoveFirst();
 if (!empty($probeid)){
 	echo "<p><i>Stream filtered to results from probe: ".$probeid."</i></p>";
 }
+if (!empty($errors)){
+        echo "<p><i>Probe log filtered to only show errored time intervals</i></p>";
+}
+
 
 echo "<table class=\"table table-striped table-bordered table-hover\">";
 echo "<tr><th>Timestamp</th><th>Probe</th><th>Total RTP Packets</th><th>Lost RTP Packets</th><th>Out of Sequence Packets</th></tr>";
