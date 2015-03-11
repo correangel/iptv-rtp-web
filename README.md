@@ -4,7 +4,4 @@ Basic web GUI and database schema for statistics reported by  [iptv-rtp-probe](h
 
 Requires:
 
-Web Server (apache or NGINX)
-php5
-php5-adodb
-bootstrap CSS framework (included)
+Web Server (apache or NGINX), php5, php5-adodb, bootstrap CSS framework (included)
