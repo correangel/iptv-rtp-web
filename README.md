@@ -1,6 +1,6 @@
 iptv-rtp-web
 ======================
-Basic web GUI and database schema for statistics reported by  [iptv-rtp-probe](http://github.com/killminus9/iptv-rtp-probe)
+Basic web GUI and database schema for statistics reported by  [iptv-rtp-probe](http://github.com/floatingstatic/iptv-rtp-probe)
 
 Requires:
 
